@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FuriLog Calendar</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app">
+    <header>
+      <h1>FuriLog Calendar</h1>
+      <p>ダンスサークル向け練習カレンダー</p>
+    </header>
+
+    <main class="panel">
+      <button class="floating-add-button" onclick="openAddModal()">＋ 予定を追加</button>
+
+      <div class="calendar-header">
+        <div class="month-title" id="monthTitle"></div>
+        <div class="month-buttons">
+          <button onclick="changeMonth(-1)">前の月</button>
+          <button onclick="goToday()">今月</button>
+          <button onclick="changeMonth(1)">次の月</button>
+        </div>
+      </div>
+
+      <div id="calendar" class="calendar"></div>
+    </main>
+  </div>
+
+  <div id="eventModal" class="modal-bg">
+    <div class="add-modal">
+      <h2 id="modalTitle">予定を追加</h2>
+
+      <div class="form-grid">
+        <input type="date" id="eventDate">
+        <input type="time" id="eventTime">
+
+        <select id="eventType">
+          <option value="normal">🌸 通常練</option>
+          <option value="run">💜 通し</option>
+          <option value="show">🔥 本番</option>
+        </select>
+
+        <input type="text" id="eventTitle" placeholder="内容">
+        <input type="text" id="eventTeacher" placeholder="担当">
+        <input type="text" id="eventPlace" placeholder="場所">
+      </div>
+
+      <textarea id="eventMemo" placeholder="メモ"></textarea>
+
+      <div class="modal-buttons">
+        <button class="primary-button" id="saveButton" onclick="saveEvent()">保存</button>
+        <button class="delete-button" id="deleteButton" onclick="deleteEvent()">削除</button>
+        <button class="cancel-button" onclick="closeEventModal()">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
