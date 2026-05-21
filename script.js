@@ -2,13 +2,17 @@ let events = JSON.parse(localStorage.getItem("events")) || [];
 let currentDate = new Date();
 let editingIndex = null;
 
-function openAddModal(){
+function openAddModal(selectedDate = ""){
   editingIndex = null;
 
   document.getElementById("modalTitle").textContent = "予定を追加";
   document.getElementById("deleteButton").style.display = "none";
 
   clearForm();
+
+  if(selectedDate){
+    document.getElementById("eventDate").value = selectedDate;
+  }
 
   document.getElementById("eventModal").classList.add("active");
 }
@@ -125,6 +129,13 @@ function renderCalendar(){
     const dayBox = document.createElement("div");
     dayBox.className = "calendar-day";
 
+    const dateString =
+      `${year}-${String(month + 1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+
+    dayBox.onclick = function(){
+      openAddModal(dateString);
+    };
+
     const today = new Date();
 
     if(
@@ -140,9 +151,6 @@ function renderCalendar(){
     dateNumber.textContent = day;
     dayBox.appendChild(dateNumber);
 
-    const dateString =
-      `${year}-${String(month + 1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-
     events.forEach((event, index) => {
       if(event.date === dateString){
         const chip = document.createElement("div");
@@ -153,7 +161,8 @@ function renderCalendar(){
           ${event.time || ""} ${event.teacher ? "｜" + event.teacher : ""}
         `;
 
-        chip.onclick = function(){
+        chip.onclick = function(e){
+          e.stopPropagation();
           openEditModal(index);
         };
 
