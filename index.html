@@ -26,6 +26,8 @@
         </div>
       </div>
 
+      <p class="tap-guide">日付をタップすると、その日の予定を追加できます</p>
+
       <div id="calendar" class="calendar"></div>
     </main>
   </div>
@@ -35,24 +37,41 @@
       <h2 id="modalTitle">予定を追加</h2>
 
       <div class="form-grid">
-        <input type="date" id="eventDate">
-        <input type="time" id="eventTime">
+        <label>日付
+          <input type="date" id="eventDate">
+        </label>
 
-        <select id="eventType">
-          <option value="normal">🌸 通常練</option>
-          <option value="run">💜 通し</option>
-          <option value="show">🔥 本番</option>
-        </select>
+        <label>時間
+          <input type="time" id="eventTime">
+        </label>
 
-        <input type="text" id="eventTitle" placeholder="内容">
-        <input type="text" id="eventTeacher" placeholder="担当">
-        <input type="text" id="eventPlace" placeholder="場所">
+        <label>種類
+          <select id="eventType">
+            <option value="normal">🌸 通常練</option>
+            <option value="run">💜 通し</option>
+            <option value="show">🔥 本番</option>
+          </select>
+        </label>
+
+        <label>内容
+          <input type="text" id="eventTitle" placeholder="例：1サビ振り下ろし">
+        </label>
+
+        <label>担当
+          <input type="text" id="eventTeacher" placeholder="例：もね">
+        </label>
+
+        <label>場所
+          <input type="text" id="eventPlace" placeholder="例：学生ホール">
+        </label>
       </div>
 
-      <textarea id="eventMemo" placeholder="メモ"></textarea>
+      <label>メモ
+        <textarea id="eventMemo" placeholder="例：ヒール持参"></textarea>
+      </label>
 
       <div class="modal-buttons">
-        <button class="primary-button" id="saveButton" onclick="saveEvent()">保存</button>
+        <button class="primary-button" onclick="saveEvent()">保存</button>
         <button class="delete-button" id="deleteButton" onclick="deleteEvent()">削除</button>
         <button class="cancel-button" onclick="closeEventModal()">閉じる</button>
       </div>
