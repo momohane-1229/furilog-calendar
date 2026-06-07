@@ -1,6 +1,46 @@
-let events = JSON.parse(localStorage.getItem("events")) || [];
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBAj5hNKDRiyBtFARxgRqKvA-o59OnZW6k",
+  authDomain: "furilog-calender.firebaseapp.com",
+  projectId: "furilog-calender",
+  storageBucket: "furilog-calender.firebasestorage.app",
+  messagingSenderId: "781255997751",
+  appId: "1:781255997751:web:4b1801af0bbbcfd99b02b2",
+  measurementId: "G-VD9ZVVRZRP"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let events = [];
 let currentDate = new Date();
 let editingIndex = null;
+
+async function loadEvents(){
+  events = [];
+
+  const querySnapshot = await getDocs(collection(db, "events"));
+
+  querySnapshot.forEach((document) => {
+    events.push({
+      id: document.id,
+      ...document.data()
+    });
+  });
+
+  renderCalendar();
+}
 
 function openAddModal(selectedDate = ""){
   editingIndex = null;
@@ -25,13 +65,13 @@ function openEditModal(index){
   document.getElementById("modalTitle").textContent = "予定を編集";
   document.getElementById("deleteButton").style.display = "inline-block";
 
-  document.getElementById("eventDate").value = event.date;
-  document.getElementById("eventTime").value = event.time;
-  document.getElementById("eventType").value = event.type;
-  document.getElementById("eventTitle").value = event.title;
-  document.getElementById("eventTeacher").value = event.teacher;
-  document.getElementById("eventPlace").value = event.place;
-  document.getElementById("eventMemo").value = event.memo;
+  document.getElementById("eventDate").value = event.date || "";
+  document.getElementById("eventTime").value = event.time || "";
+  document.getElementById("eventType").value = event.type || "normal";
+  document.getElementById("eventTitle").value = event.title || "";
+  document.getElementById("eventTeacher").value = event.teacher || "";
+  document.getElementById("eventPlace").value = event.place || "";
+  document.getElementById("eventMemo").value = event.memo || "";
 
   document.getElementById("eventModal").classList.add("active");
 }
@@ -50,46 +90,33 @@ function clearForm(){
   document.getElementById("eventMemo").value = "";
 }
 
-function saveEvents(){
-  localStorage.setItem("events", JSON.stringify(events));
-}
-
-function saveEvent(){
-  const date = document.getElementById("eventDate").value;
-  const time = document.getElementById("eventTime").value;
-  const type = document.getElementById("eventType").value;
-  const title = document.getElementById("eventTitle").value;
-  const teacher = document.getElementById("eventTeacher").value;
-  const place = document.getElementById("eventPlace").value;
-  const memo = document.getElementById("eventMemo").value;
-
-  if(!date || !title){
-    alert("日付と内容を入れてね");
-    return;
-  }
-
+async function saveEvent(){
   const eventData = {
-    date,
-    time,
-    type,
-    title,
-    teacher,
-    place,
-    memo
+    date: document.getElementById("eventDate").value,
+    time: document.getElementById("eventTime").value,
+    type: document.getElementById("eventType").value,
+    title: document.getElementById("eventTitle").value,
+    teacher: document.getElementById("eventTeacher").value,
+    place: document.getElementById("eventPlace").value,
+    memo: document.getElementById("eventMemo").value
   };
 
+if(!eventData.date || !eventData.teacher){
+  alert("日付と担当者を入れてね");
+  return;
+}
   if(editingIndex === null){
-    events.push(eventData);
+    await addDoc(collection(db, "events"), eventData);
   }else{
-    events[editingIndex] = eventData;
+    const targetEvent = events[editingIndex];
+    await updateDoc(doc(db, "events", targetEvent.id), eventData);
   }
 
-  saveEvents();
-  renderCalendar();
+  await loadEvents();
   closeEventModal();
 }
 
-function deleteEvent(){
+async function deleteEvent(){
   if(editingIndex === null){
     return;
   }
@@ -97,9 +124,10 @@ function deleteEvent(){
   const result = confirm("この予定を削除する？");
 
   if(result){
-    events.splice(editingIndex, 1);
-    saveEvents();
-    renderCalendar();
+    const targetEvent = events[editingIndex];
+    await deleteDoc(doc(db, "events", targetEvent.id));
+
+    await loadEvents();
     closeEventModal();
   }
 }
@@ -157,8 +185,7 @@ function renderCalendar(){
         chip.className = `event-chip type-${event.type}`;
 
         chip.innerHTML = `
-          <strong>${event.title}</strong><br>
-          ${event.time || ""} ${event.teacher ? "｜" + event.teacher : ""}
+          <strong>${event.teacher || "担当未定"}</strong>
         `;
 
         chip.onclick = function(e){
@@ -184,4 +211,11 @@ function goToday(){
   renderCalendar();
 }
 
-renderCalendar();
+window.openAddModal = openAddModal;
+window.closeEventModal = closeEventModal;
+window.saveEvent = saveEvent;
+window.deleteEvent = deleteEvent;
+window.changeMonth = changeMonth;
+window.goToday = goToday;
+
+loadEvents();
